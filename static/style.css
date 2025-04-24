@@ -1,0 +1,26 @@
+.form-error { 
+    color: #dc3545; font-size: 0.9em; 
+}
+.invalid-field { 
+    border-color: #dc3545 !important; 
+}
+.user-table { 
+    margin: 20px 0; 
+}
+.action-buttons .btn { 
+    margin: 2px; 
+}
+.modal-body span { 
+    font-weight: bold; 
+}
+/* Отступы между кнопками */
+.d-flex.gap-2 {
+    gap: 0.5rem !important;
+}
+
+/* Ховер-эффекты */
+.btn-outline-primary:hover,
+.btn-outline-warning:hover,
+.btn-outline-danger:hover {
+    color: white !important;
+}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% macro render_field(field, feedback_id, required=False) %}
+<div class="col-md-{% if field.name in ['login', 'password'] %}6{% else %}4{% endif %}">
+    <div class="form-group">
+        {{ field.label(class="form-label") }}
+        <div class="input-group has-validation">
+            {% set class = "form-control" %}
+            {% if field.errors %}
+                {% set class = class + " is-invalid" %}
+            {% elif form_submitted and field.data and not field.errors %}
+                {% set class = class + " is-valid" %}
+            {% endif %}
+            {{ field(class=class, id="validation" ~ field.name, aria_describedby=feedback_id) }}
+            <div id="{{ feedback_id }}" class="{% if field.errors %}invalid-feedback{% elif form_submitted and not field.errors and required %}valid-feedback{% endif %}">
+                {% if field.errors %}
+                    {{ field.errors[0] }}
+                {% elif form_submitted and not field.errors and required and field.data %}
+                    {% if field.name == 'password' %}
+                        Надежный пароль
+                    {% else %}
+                        Выглядит хорошо!
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro render_select(field, feedback_id, required=False) %}
+<div class="col-md-6">
+    <div class="form-group">
+        {{ field.label(class="form-label") }}
+        {{ field(
+            class="form-select " ~ 
+            ("is-invalid" if field.errors else 
+            "is-valid" if form_submitted and field.data and not field.errors else ""),
+            id="validation" ~ field.name,
+            aria_describedby=feedback_id
+        ) }}
+        <div id="{{ feedback_id }}" class="{% if field.errors %}invalid-feedback{% elif form_submitted and not field.errors and required %}valid-feedback{% endif %}">
+            {% if field.errors %}
+                {{ field.errors[0] }}
+            {% elif form_submitted and not field.errors and required and field.data %}
+                Корректный выбор
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">{% if user %}Редактирование пользователя{% else %}Создание пользователя{% endif %}</h2>
+    
+    <form class="row g-3 needs-validation" method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        {% set form_submitted = form.errors or request.method == 'POST' %}
+
+        <!-- Логин и пароль (только при создании) -->
+        {% if 'login' in form %}
+            {{ render_field(form.login, 'loginFeedback', required=True) }}
+        {% endif %}
+        {% if 'password' in form %}
+            {{ render_field(form.password, 'passwordFeedback', required=True) }}
+        {% endif %}
+
+        <!-- ФИО -->
+        {{ render_field(form.last_name, 'lastNameFeedback') }}
+        {{ render_field(form.first_name, 'firstNameFeedback', required=True) }}
+        {{ render_field(form.middle_name, 'middleNameFeedback') }}
+
+        <!-- Роль -->
+        {{ render_select(form.role_id, 'roleFeedback', required=True) }}
+
+        <!-- Кнопки -->
+        <div class="col-12 mt-4">
+            <button class="btn btn-primary px-4" type="submit">
+                {% if user %}Сохранить изменения{% else %}Создать пользователя{% endif %}
+            </button>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
